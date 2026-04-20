@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edge-ReStreamer Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #1e1e1e; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; background: #2d2d2d; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card { background: #3d3d3d; padding: 20px; border-radius: 8px; text-align: center; min-width: 150px; border-left: 5px solid #4CAF50; }
+        .card.error { border-left-color: #F44336; }
+        .value { font-size: 2em; font-weight: bold; margin: 10px 0; }
+        .label { color: #aaa; text-transform: uppercase; font-size: 0.8em; letter-spacing: 1px; }
+        .status { grid-column: span 2; text-align: center; color: #aaa; font-size: 0.9em; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="card">
+        <div class="label">Bitrate</div>
+        <div class="value" id="bitrate">0.00 <span style="font-size: 0.5em">Mbps</span></div>
+    </div>
+    <div class="card">
+        <div class="label">FPS</div>
+        <div class="value" id="fps">0</div>
+    </div>
+    <div class="card">
+        <div class="label">CPU Usage</div>
+        <div class="value" id="cpu">0%</div>
+    </div>
+    <div class="card error">
+        <div class="label">Dropped Frames</div>
+        <div class="value" style="color: #F44336" id="dropped">0</div>
+    </div>
+    <div class="status" id="ws-status">Connecting to Edge-ReStreamer...</div>
+</div>
+
+<script>
+    const ws = new WebSocket('ws://localhost:8080/ws');
+
+    ws.onopen = () => {
+        document.getElementById('ws-status').innerText = '🟢 Connected to Live Stream';
+        document.getElementById('ws-status').style.color = '#4CAF50';
+    };
+
+    ws.onclose = () => {
+        document.getElementById('ws-status').innerText = '🔴 Disconnected';
+        document.getElementById('ws-status').style.color = '#F44336';
+    };
+
+    ws.onmessage = (event) => {
+        const stats = JSON.parse(event.data);
+        document.getElementById('bitrate').innerHTML = stats.bitrate_mbps.toFixed(2) + ' <span style="font-size: 0.5em">Mbps</span>';
+        document.getElementById('fps').innerText = Math.round(stats.fps);
+        document.getElementById('cpu').innerText = stats.cpu_percent.toFixed(1) + '%';
+        document.getElementById('dropped').innerText = stats.dropped_frames;
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+camera:
+  url: rtsp://user:pass@10.0.0.42/stream1
+  timeout: 10s
+restream:
+  hls:
+    segment_duration: 2s
+    playlist_entries: 6
+    target_path: ./www/hls
+  srt:
+    host: 0.0.0.0:9000
+    latency: 120ms
+storage:
+  s3_endpoint: 127.0.0.1:9000
+  bucket: hls-backup
+  access_key: minioadmin
+  secret_key: minioadmin
+metrics:
+  ws_port: 8080
+  report_interval: 1s
